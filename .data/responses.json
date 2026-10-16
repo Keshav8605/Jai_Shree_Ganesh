@@ -1,0 +1,65 @@
+[
+  {
+    "id": "resp-1792147544271",
+    "type": "love-loop",
+    "momentId": "surprise-1792128432496",
+    "surpriseId": "surprise-1792128432496",
+    "partnerName": "Your Partner",
+    "text": "",
+    "answers": [
+      {
+        "questionId": "q1",
+        "questionText": "Now tell me Your Partner... What's one tiny thing I do that makes you smile? 💗",
+        "answer": ""
+      },
+      {
+        "questionId": "q2",
+        "questionText": "If we could teleport anywhere right now for a cozy date, where would we go? ✨",
+        "answer": ""
+      },
+      {
+        "questionId": "q3",
+        "questionText": "What's a memory of us that you replay whenever you miss me? 🥹",
+        "answer": ""
+      },
+      {
+        "questionId": "q-1792147390058-c59r",
+        "questionText": ",mnjbhgvcfdxcgvbhjnm,",
+        "answer": ""
+      }
+    ],
+    "reaction": "🥰",
+    "audioUrl": "/api/media/audio_1792147544259_te8e8.webm",
+    "voiceDuration": "0:21",
+    "createdAt": "2026-10-16T10:45:44.271Z",
+    "savedToLore": false
+  },
+  {
+    "id": "resp-1792144076435",
+    "momentId": "surprise-1792136539464",
+    "partnerName": "Your Partner",
+    "text": "dcfgfd",
+    "reaction": "🥰",
+    "voiceDuration": "0:18",
+    "createdAt": "2026-10-16T09:47:56.435Z",
+    "savedToLore": false
+  },
+  {
+    "id": "resp-1792136252137",
+    "momentId": "surprise-1792135780020",
+    "partnerName": "Rhea",
+    "text": "Always with you Always with you",
+    "reaction": "🥰",
+    "createdAt": "2026-10-16T07:37:32.137Z",
+    "savedToLore": false
+  },
+  {
+    "id": "resp-node-test-100",
+    "surpriseId": "test-node-surprise-100",
+    "recipientName": "TestRecipient",
+    "senderName": "TestSender",
+    "selectedOption": "Forever & Always",
+    "freeTextNote": "E2E Cross-device verified!",
+    "createdAt": "2026-10-16T07:28:45.995Z"
+  }
+]
