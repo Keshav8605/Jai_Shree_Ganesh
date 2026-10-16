@@ -15,26 +15,33 @@ export const LoveQuestion: React.FC<LoveQuestionProps> = ({ onContinue }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const noButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Smooth asymptotic scaling: starts at 1.0, gradually shrinks without disappearing or zero-size
+  const noScale = Math.max(0.45, 1 / (1 + noAttempts * 0.08));
+
   const dodgeNo = useCallback(() => {
     if (!containerRef.current) return;
     const container = containerRef.current.getBoundingClientRect();
-    const btnWidth = 140;
-    const btnHeight = 50;
-    const maxX = container.width - btnWidth - 20;
-    const maxY = container.height - btnHeight - 20;
+    const currentScale = Math.max(0.45, 1 / (1 + (noAttempts + 1) * 0.08));
+    const btnWidth = Math.max(70, 140 * currentScale);
+    const btnHeight = Math.max(30, 48 * currentScale);
 
-    const minY = Math.min(320, Math.max(150, maxY - 80));
-    const newX = 16 + Math.random() * Math.max(10, maxX - 16);
+    const maxX = Math.max(20, container.width - btnWidth - 16);
+    const maxY = Math.max(100, container.height - btnHeight - 24);
+
+    // Keep below the Yes button area (minY 310) to avoid accidental click/overlap
+    const minY = Math.min(310, Math.max(220, maxY - 90));
+    const newX = 12 + Math.random() * Math.max(10, maxX - 24);
     const newY = minY + Math.random() * Math.max(10, maxY - minY);
 
-    setNoPos({ x: newX, y: newY });
+    setNoPos({ x: Math.round(newX), y: Math.round(newY) });
 
     const attemptNum = noAttempts + 1;
     setNoAttempts(attemptNum);
 
     const messages = loveConfig.noAttemptMessages;
-    if (attemptNum <= messages.length) {
-      setShowMessage(messages[attemptNum - 1]);
+    if (messages.length > 0) {
+      const msg = messages[(attemptNum - 1) % messages.length];
+      setShowMessage(msg);
       setTimeout(() => setShowMessage(null), 2000);
     }
   }, [noAttempts]);
@@ -44,16 +51,12 @@ export const LoveQuestion: React.FC<LoveQuestionProps> = ({ onContinue }) => {
   }, []);
 
   const handleNoInteraction = useCallback(
-    (e: React.PointerEvent) => {
+    (e: React.SyntheticEvent) => {
       e.preventDefault();
-      if (noAttempts >= loveConfig.noAttemptMessages.length) {
-        // Give up and let them click
-        setAnswered(true);
-        return;
-      }
+      e.stopPropagation();
       dodgeNo();
     },
-    [dodgeNo, noAttempts]
+    [dodgeNo]
   );
 
   return (
@@ -158,27 +161,33 @@ export const LoveQuestion: React.FC<LoveQuestionProps> = ({ onContinue }) => {
                 {loveConfig.yesText}
               </motion.button>
 
-              {/* NO button - dodging */}
+              {/* NO button - dodging with infinite progressive shrinking */}
               <motion.button
                 ref={noButtonRef}
                 id="no-button"
                 className="py-3 px-8 rounded-full font-semibold text-love-plum/70 cursor-pointer
                            bg-white border-2 border-love-blush
                            hover:border-love-coral
-                           transition-colors duration-200 z-[5]"
+                           transition-colors duration-200 z-[5] select-none"
                 style={{
                   fontFamily: "var(--font-display)",
                   position: noPos ? "absolute" : "relative",
                   left: noPos ? `${noPos.x}px` : "auto",
                   top: noPos ? `${noPos.y}px` : "auto",
                   width: noPos ? "auto" : "100%",
-                  transition: noPos ? "left 0.3s ease, top 0.3s ease" : undefined,
+                  transform: `scale(${noScale})`,
+                  transformOrigin: "center center",
+                  transition: noPos
+                    ? "left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s ease-out"
+                    : "transform 0.2s ease-out",
                 }}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: noPos ? 0 : 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
                 onPointerEnter={handleNoInteraction}
                 onPointerDown={handleNoInteraction}
+                onTouchStart={handleNoInteraction}
+                onClick={handleNoInteraction}
                 aria-label="No button - this button playfully dodges your click"
               >
                 {loveConfig.noText}
@@ -198,15 +207,6 @@ export const LoveQuestion: React.FC<LoveQuestionProps> = ({ onContinue }) => {
                   </motion.p>
                 )}
               </AnimatePresence>
-
-              {/* Skip link for accessibility */}
-              <button
-                className="mt-6 text-xs text-love-coral/40 underline cursor-pointer hover:text-love-coral/60 transition-colors block mx-auto"
-                onClick={() => setAnswered(true)}
-                aria-label="Skip this interaction"
-              >
-                skip this part →
-              </button>
             </motion.div>
           ) : (
             <motion.div

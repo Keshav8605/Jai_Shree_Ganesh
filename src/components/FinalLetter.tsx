@@ -5,15 +5,28 @@ import { HuggingCouple, HeartIcon, FlowerIcon, SparkleIcon } from "./Illustratio
 
 interface FinalLetterProps {
   onReplay: () => void;
+  customLetterMessage?: string;
+  customQuote?: string;
+  customImageUrl?: string;
+  partnerName?: string;
+  creatorName?: string;
 }
 
-export const FinalLetter: React.FC<FinalLetterProps> = ({ onReplay }) => {
+export const FinalLetter: React.FC<FinalLetterProps> = ({
+  onReplay,
+  customLetterMessage,
+  customQuote,
+  customImageUrl,
+  partnerName,
+  creatorName,
+}) => {
   const [isOpened, setIsOpened] = useState(false);
   const [showFullLetter, setShowFullLetter] = useState(false);
   const [visibleLines, setVisibleLines] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const letterLines = loveConfig.finalLetter
+  const rawLetter = customLetterMessage || loveConfig.finalLetter;
+  const letterLines = rawLetter
     .split("\n")
     .filter((line) => line.trim() !== "" || true); // Keep empty lines for spacing
 
@@ -130,7 +143,7 @@ export const FinalLetter: React.FC<FinalLetterProps> = ({ onReplay }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {loveConfig.finalLetterHeading}
+                {partnerName ? `A letter for ${partnerName}` : loveConfig.finalLetterHeading}
               </motion.h2>
 
               {/* Animated envelope */}
@@ -202,6 +215,17 @@ export const FinalLetter: React.FC<FinalLetterProps> = ({ onReplay }) => {
                   <SparkleIcon size={16} color="#FFA0B8" />
                 </div>
 
+                {/* Custom Photo if provided */}
+                {customImageUrl && (
+                  <div className="mb-6 rounded-2xl overflow-hidden aspect-[16/10] shadow-md border border-love-blush/60">
+                    <img
+                      src={customImageUrl}
+                      alt="Special moment"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
                 {/* Letter content */}
                 <div className="space-y-1 min-h-[200px]">
                   {letterLines.map((line, i) => {
@@ -211,7 +235,8 @@ export const FinalLetter: React.FC<FinalLetterProps> = ({ onReplay }) => {
                     const isEmpty = line.trim() === "";
                     const isSignature =
                       line.includes("With all my love") ||
-                      line.includes("Your favorite");
+                      line.includes("Your favorite") ||
+                      (creatorName && line.includes(creatorName));
 
                     return (
                       <motion.p
@@ -270,7 +295,7 @@ export const FinalLetter: React.FC<FinalLetterProps> = ({ onReplay }) => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 }}
                   >
-                    {loveConfig.finalQuote}
+                    {customQuote || loveConfig.finalQuote}
                   </motion.p>
 
                   {/* Hugging characters */}

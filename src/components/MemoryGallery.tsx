@@ -3,8 +3,13 @@ import { motion, AnimatePresence } from "motion/react";
 import { loveConfig } from "../data/loveConfig";
 import { HeartIcon, FlowerIcon, SparkleIcon } from "./Illustrations";
 
+import type { ClassicGalleryPhoto } from "../types/romantic";
+
 interface MemoryGalleryProps {
   onContinue: () => void;
+  customPhotos?: ClassicGalleryPhoto[];
+  galleryHeading?: string;
+  gallerySubtitle?: string;
 }
 
 const placeholderGradients = [
@@ -19,7 +24,7 @@ const placeholderGradients = [
 const placeholderEmojis = ["📸", "🌸", "🌅", "🏖️", "☕", "🌿"];
 
 interface LightboxProps {
-  photos: typeof loveConfig.galleryPhotos;
+  photos: { src?: string; caption: string; note?: string }[];
   currentIndex: number;
   onClose: () => void;
   onPrev: () => void;
@@ -124,8 +129,26 @@ const Lightbox: React.FC<LightboxProps> = ({
   );
 };
 
-export const MemoryGallery: React.FC<MemoryGalleryProps> = ({ onContinue }) => {
+export const MemoryGallery: React.FC<MemoryGalleryProps> = ({
+  onContinue,
+  customPhotos,
+  galleryHeading,
+  gallerySubtitle,
+}) => {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const photos =
+    customPhotos && customPhotos.length > 0
+      ? customPhotos.map((p, idx) => ({
+          src: p.src || "",
+          caption: p.caption,
+          note: p.note,
+          rotation: p.rotation ?? (idx % 2 === 0 ? -2 : 3),
+        }))
+      : loveConfig.galleryPhotos;
+
+  const heading = galleryHeading || loveConfig.galleryHeading;
+  const subtitle = gallerySubtitle !== undefined ? gallerySubtitle : loveConfig.gallerySubtitle;
 
   const openLightbox = (i: number) => setLightboxIndex(i);
   const closeLightbox = () => setLightboxIndex(null);
@@ -139,11 +162,11 @@ export const MemoryGallery: React.FC<MemoryGalleryProps> = ({ onContinue }) => {
   const nextPhoto = useCallback(
     () =>
       setLightboxIndex((prev) =>
-        prev !== null && prev < loveConfig.galleryPhotos.length - 1
+        prev !== null && prev < photos.length - 1
           ? prev + 1
           : prev
       ),
-    []
+    [photos.length]
   );
 
   return (
@@ -191,23 +214,25 @@ export const MemoryGallery: React.FC<MemoryGalleryProps> = ({ onContinue }) => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          {loveConfig.galleryHeading}
+          {heading}
         </motion.h2>
 
-        <motion.p
-          className="text-sm text-love-plum/60 mb-10"
-          style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-        >
-          {loveConfig.gallerySubtitle}
-        </motion.p>
+        {subtitle && (
+          <motion.p
+            className="text-sm text-love-plum/60 mb-10"
+            style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            {subtitle}
+          </motion.p>
+        )}
 
         {/* Photo grid - asymmetric */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-10">
-          {loveConfig.galleryPhotos.map((photo, i) => (
+          {photos.map((photo, i) => (
             <motion.div
               key={i}
               className="polaroid rounded-sm cursor-pointer"
@@ -294,7 +319,7 @@ export const MemoryGallery: React.FC<MemoryGalleryProps> = ({ onContinue }) => {
       <AnimatePresence>
         {lightboxIndex !== null && (
           <Lightbox
-            photos={loveConfig.galleryPhotos}
+            photos={photos}
             currentIndex={lightboxIndex}
             onClose={closeLightbox}
             onPrev={prevPhoto}
